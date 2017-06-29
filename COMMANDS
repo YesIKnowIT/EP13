@@ -1,0 +1,69 @@
+# 1
+cat ECN_2012_US_00CCOMP1-2.psv
+
+# 2
+sed -En '
+  /(Texas|TEXAS).*[Oo]il.*extraction/ {
+    y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/
+    p
+  }' 
+
+awk '
+  /(Texas|TEXAS).*[Oo]il.*extraction/ {
+    print toupper($0)
+  }' ECN_2012_US_00CCOMP1.psv
+
+
+# 3
+awk '
+  (/Texas/ || /TEXAS/) && /[Oo]il.*extraction/ {
+    print toupper($0)
+  }' ECN_2012_US_00CCOMP1.psv
+
+# 4
+head oil-and-gas-extraction-per-us-state-2007-2012-emp.data
+
+awk '
+  $3 > 10000 || $4 > 10000 {
+    print $1, $3, $4, $4-$3
+  }' oil-and-gas-extraction-per-us-state-2007-2012-emp.data
+
+# 5
+head ECN_2012_US_00CCOMP1.psv
+
+awk '
+  BEGIN { FS="|" }
+  NR<3 || toupper($3) == "TEXAS" {
+    print $2,$4,$5,$12
+  }' ECN_2012_US_00CCOMP1.psv | head -10
+
+awk '
+  BEGIN { FS="|"; OFS="|" }
+  NR<3 || toupper($3) == "TEXAS" {
+    print $2,$4,$5,$12
+  }' ECN_2012_US_00CCOMP1.psv | head -10
+
+# 6
+awk '
+  BEGIN { FS="|"; OFS="|" }
+  NR<3 || !(toupper($3) == "TEXAS") {
+    print $2,$4,$5,$12
+  }' ECN_2012_US_00CCOMP1.psv | less
+
+awk '
+  BEGIN { FS="|"; OFS="|" }
+  NR<3 || (toupper($3) != "TEXAS") {
+    print $2,$4,$5,$12
+  }' ECN_2012_US_00CCOMP1.psv | less
+
+# 7
+awk '
+  BEGIN { FS=OFS="|" } 
+  (NR<3) || 
+  (toupper($3) != "TEXAS") &&
+  ($8==2012) &&
+  ($5 ~ "[Oo]il") &&
+  ($5 !~ /except oil/) {
+    print toupper($3),$4,toupper($5),$12
+  }' ECN_2012_US_00CCOMP1.psv
+
